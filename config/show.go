@@ -92,6 +92,9 @@ func (s *show) parse(wg *sync.WaitGroup) error {
 
 	s.unfoldPresent()
 	tmp := s.adapter.GetLocal(s.Title, *s.pOpts.Translator, s.parser.EpisodeNumberRule)
+	if s.present == nil {
+		s.present = map[int]struct{}{}
+	}
 	for k, v := range tmp {
 		s.present[k] = v
 	}
