@@ -113,7 +113,12 @@ func (s *show) parse(wg *sync.WaitGroup) error {
 	}
 	s.eps = s.compileEps(eps)
 	wg.Done()
-	log.Printf("%s: present: %s, ready: %s\n", s.Title, s.Present, s.eps)
+	log.Printf("%s: present: %s, ready: %s\n", s.Title, s.Present, func(s string) string {
+		if s == "" {
+			return "0"
+		}
+		return s
+	}(s.eps))
 	return nil
 }
 
