@@ -89,11 +89,11 @@ func (c *config) start(id string) (bool, error) {
 	return false, nil
 }
 
-func (c *config) compile(Entry) {
+func (c *config) compile(Entry, func()) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
 	for _, e := range c.getChilds() {
-		e.compile(c)
+		e.compile(c, c.save)
 	}
 }
 

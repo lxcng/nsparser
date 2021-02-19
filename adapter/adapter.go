@@ -3,11 +3,9 @@ package adapter
 import (
 	"nsparser/adapter/macos"
 	"nsparser/adapter/ubuntu"
-	"regexp"
 )
 
 type Adapter interface {
-	GetLocal(title, translator string, episodeNumberRule *regexp.Regexp) map[int]struct{}
 	AddMagnet(magnet, dir string) error
 }
 

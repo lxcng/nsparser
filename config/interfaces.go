@@ -12,7 +12,7 @@ type Entry interface {
 	getClientOpts() *adapter.ClientOpts
 	getParserOpts() *parser.ParserOpts
 
-	compile(Entry)
+	compile(Entry, func())
 	start(string) (bool, error)
 	parse(*sync.WaitGroup) error
 

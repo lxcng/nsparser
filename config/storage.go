@@ -54,7 +54,7 @@ func (s *storage) reloadJob() {
 		tmp := config{path: s.conf.path}
 		s.mx.RUnlock()
 		tmp.load()
-		tmp.compile(nil)
+		tmp.compile(nil, nil)
 		tmp.parse(nil)
 		s.mx.Lock()
 		s.conf = &tmp

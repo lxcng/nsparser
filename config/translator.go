@@ -50,12 +50,12 @@ func (t *translator) start(id string) (bool, error) {
 	return false, nil
 }
 
-func (t *translator) compile(e Entry) {
+func (t *translator) compile(e Entry, sf func()) {
 	t.mx.Lock()
 	defer t.mx.Unlock()
 	t.parent = e
 	for _, e := range t.getChilds() {
-		e.compile(t)
+		e.compile(t, sf)
 	}
 }
 

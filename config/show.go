@@ -34,6 +34,8 @@ type show struct {
 
 	parser  *parser.Parser
 	adapter adapter.Adapter
+
+	saveFunc func()
 }
 
 func (s *show) getParent() Entry {
@@ -56,18 +58,27 @@ func (s *show) start(id string) (bool, error) {
 	s.mx.RLock()
 	defer s.mx.RUnlock()
 	if s.id == id {
-		for _, ep := range s.episodes {
+		for key, ep := range s.episodes {
 			err := s.adapter.AddMagnet(ep, *s.cOpts.DownloadFolder)
 			if err != nil {
 				return true, err
 			}
+			delete(s.episodes, key)
+			s.present[key] = struct{}{}
 		}
+		s.Present = s.compileEps(s.present)
+		eps := make(map[int]struct{})
+		for k, _ := range s.episodes {
+			eps[k] = struct{}{}
+		}
+		s.eps = s.compileEps(eps)
+		s.saveFunc()
 		return true, nil
 	}
 	return false, nil
 }
 
-func (s *show) compile(e Entry) {
+func (s *show) compile(e Entry, sf func()) {
 	s.mx.Lock()
 	defer s.mx.Unlock()
 	s.parent = e
@@ -79,6 +90,7 @@ func (s *show) compile(e Entry) {
 	}
 	s.parser = parser.NewParser(s.pOpts)
 	s.adapter = adapter.NewScanner(s.cOpts)
+	s.saveFunc = sf
 }
 
 func (s *show) parse(wg *sync.WaitGroup) error {
@@ -91,13 +103,7 @@ func (s *show) parse(wg *sync.WaitGroup) error {
 	}
 
 	s.unfoldPresent()
-	tmp := s.adapter.GetLocal(s.Title, *s.pOpts.Translator, s.parser.EpisodeNumberRule)
-	if s.present == nil {
-		s.present = map[int]struct{}{}
-	}
-	for k, v := range tmp {
-		s.present[k] = v
-	}
+
 	s.Present = s.compileEps(s.present)
 
 	for n, m := range epsTmp {

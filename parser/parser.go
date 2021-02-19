@@ -5,7 +5,6 @@ import (
 	"log"
 	"regexp"
 	"strconv"
-	"time"
 
 	"golang.org/x/net/html"
 )
@@ -37,7 +36,7 @@ func NewParser(po ParserOpts) *Parser {
 }
 
 func (p *Parser) ParsePage(user, title string) map[int]string {
-	start := time.Now()
+	// start := time.Now()
 	res := map[int]string{}
 	for i := 1; i < 100; i++ {
 		eps := p.parsePage(user, title, i)
@@ -48,7 +47,7 @@ func (p *Parser) ParsePage(user, title string) map[int]string {
 			res[n] = m
 		}
 	}
-	log.Printf("parsed %d episodes of \"%s\" by %s in %v\n", len(res), title, user, time.Now().Sub(start).String())
+	// log.Printf("parsed %d episodes of \"%s\" by %s in %v\n", len(res), title, user, time.Now().Sub(start).String())
 	return res
 }
 

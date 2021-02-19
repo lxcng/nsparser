@@ -13,7 +13,7 @@ func main() {
 	if !ok {
 		path = "config.json"
 	}
-	log.Println("ver_0.3")
+	log.Println("ver_0.4")
 	config.NewConf(path)
 	go server.StartServer()
 	<-listenForInterrupt()
