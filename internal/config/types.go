@@ -1,7 +1,6 @@
 package config
 
 import (
-	"nsparser/internal/adapter"
 	"nsparser/internal/parser"
 	"sync"
 )
@@ -9,7 +8,6 @@ import (
 type Entry interface {
 	getParent() Entry
 	getChilds() []Entry
-	getClientOpts() *adapter.ClientOpts
 	getParserOpts() *parser.ParserOpts
 
 	compile(Entry)

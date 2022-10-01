@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 
-	"nsparser/internal/adapter"
 	"nsparser/internal/parser"
 	"os"
 	"sync"
@@ -13,7 +12,6 @@ import (
 
 type config struct {
 	parser.ParserOpts
-	adapter.ClientOpts
 
 	Translators []*translator `json:","`
 	path        string
@@ -73,10 +71,6 @@ func (c *config) getChilds() []Entry {
 
 func (c *config) getParserOpts() *parser.ParserOpts {
 	return &c.ParserOpts
-}
-
-func (c *config) getClientOpts() *adapter.ClientOpts {
-	return &c.ClientOpts
 }
 
 func (c *config) start() error {

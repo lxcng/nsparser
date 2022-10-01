@@ -1,14 +1,12 @@
 package config
 
 import (
-	"nsparser/internal/adapter"
 	"nsparser/internal/parser"
 	"sync"
 )
 
 type translator struct {
 	parser.ParserOpts
-	adapter.ClientOpts
 
 	Shows  []*show `json:","`
 	parent Entry
@@ -29,11 +27,6 @@ func (t *translator) getChilds() []Entry {
 func (t *translator) getParserOpts() *parser.ParserOpts {
 
 	return &t.ParserOpts
-}
-
-func (t *translator) getClientOpts() *adapter.ClientOpts {
-
-	return &t.ClientOpts
 }
 
 func (t *translator) start() error {

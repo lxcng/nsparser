@@ -13,13 +13,9 @@ import (
 )
 
 type show struct {
-	parser.ParserOpts  `json:",omitempty"`
-	adapter.ClientOpts `json:",omitempty"`
+	parser.ParserOpts `json:",omitempty"`
 
 	pOpts parser.ParserOpts
-	cOpts adapter.ClientOpts
-
-	id string
 
 	episodes map[int]string
 	eps      string
@@ -33,8 +29,7 @@ type show struct {
 
 	parent Entry
 
-	parser  *parser.Parser
-	adapter adapter.Adapter
+	parser *parser.Parser
 }
 
 type episode struct {
@@ -54,13 +49,9 @@ func (s *show) getParserOpts() *parser.ParserOpts {
 	return &s.ParserOpts
 }
 
-func (s *show) getClientOpts() *adapter.ClientOpts {
-	return &s.ClientOpts
-}
-
 func (s *show) start() error {
 	for key, ep := range s.episodes {
-		err := s.adapter.AddTorrent(ep, *s.cOpts.DownloadFolder)
+		err := adapter.AddTorrent(ep)
 		if err != nil {
 			return err
 		}
@@ -68,26 +59,19 @@ func (s *show) start() error {
 		s.present[key] = struct{}{}
 	}
 	s.Present = s.compileEps(s.present)
-	eps := make(map[int]struct{})
-	for k, _ := range s.episodes {
-		eps[k] = struct{}{}
-	}
-	s.eps = s.compileEps(eps)
+	s.compileMissing()
 	return nil
 }
 
 func (s *show) compile(e Entry) {
 	s.parent = e
-	s.id = s.Title
 	s.episodes = map[int]string{}
 	s.present = decompileEps(s.Present, s.Title)
 	s.unfoldMissing()
 	for current := Entry(s); current != nil; current = current.getParent() {
 		s.pOpts.Merge(current.getParserOpts())
-		s.cOpts.Merge(current.getClientOpts())
 	}
 	s.parser = parser.NewParser(s.pOpts)
-	s.adapter = adapter.NewScanner(s.cOpts)
 }
 
 func (s *show) parse(wg *sync.WaitGroup) error {
@@ -109,7 +93,7 @@ func (s *show) parse(wg *sync.WaitGroup) error {
 		}
 	}
 	eps := make(map[int]struct{})
-	for k, _ := range s.episodes {
+	for k := range s.episodes {
 		eps[k] = struct{}{}
 	}
 	s.eps = s.compileEps(eps)
@@ -130,38 +114,6 @@ func (s *show) AppendPresent(pr string) {
 		s.present[k] = struct{}{}
 	}
 }
-
-// func (s *show) unfoldPresent() {
-// 	res := map[int]struct{}{}
-// 	if s.Present == "" {
-// 		s.present = res
-// 		return
-// 	}
-// 	ranges := strings.Split(s.Present, ", ")
-// 	for _, r := range ranges {
-// 		num, err := strconv.ParseInt(r, 10, 32)
-// 		if err == nil {
-// 			res[int(num)] = struct{}{}
-// 		} else {
-// 			borders := strings.Split(r, "-")
-// 			if len(borders) != 2 {
-// 				log.Fatalf("invalid Present for %s", s.Title)
-// 			}
-// 			min, err := strconv.ParseInt(borders[0], 10, 32)
-// 			if err != nil {
-// 				log.Fatalf("invalid Present for %s", s.Title)
-// 			}
-// 			max, err := strconv.ParseInt(borders[1], 10, 32)
-// 			if err != nil {
-// 				log.Fatalf("invalid Present for %s", s.Title)
-// 			}
-// 			for i := min; i <= max; i++ {
-// 				res[int(i)] = struct{}{}
-// 			}
-// 		}
-// 	}
-// 	s.present = res
-// }
 
 func (s *show) unfoldMissing() {
 	s.episodes = make(map[int]string)
