@@ -84,6 +84,7 @@ func (s *show) compile(e Entry, sf func()) {
 	s.parent = e
 	s.id = s.Title
 	s.episodes = map[int]string{}
+	s.unfoldPresent()
 	for current := Entry(s); current != nil; current = current.getParent() {
 		s.pOpts.Merge(current.getParserOpts())
 		s.cOpts.Merge(current.getClientOpts())
@@ -145,6 +146,7 @@ func (s *show) getViews() []*View {
 func (s *show) unfoldPresent() {
 	res := map[int]struct{}{}
 	if s.Present == "" {
+		s.present = res
 		return
 	}
 	ranges := strings.Split(s.Present, ", ")
