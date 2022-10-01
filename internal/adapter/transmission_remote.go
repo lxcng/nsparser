@@ -60,6 +60,18 @@ func Flush() error {
 	return nil
 }
 
+func List() (string, error) {
+	cmd := exec.Command(
+		"transmission-remote", "-l",
+	)
+	bt, err := cmd.Output()
+	if err != nil {
+		log.Println(err.Error(), string(bt))
+		return "", err
+	}
+	return string(bt), nil
+}
+
 func wget(url string) string {
 	return fmt.Sprintf("wget %s", url)
 }

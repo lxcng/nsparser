@@ -2,6 +2,7 @@ package app
 
 import (
 	"log"
+	"nsparser/internal/adapter"
 	"nsparser/internal/config"
 	"os"
 
@@ -38,8 +39,20 @@ func Init(conf *config.Config) *App {
 			{
 				Name:    "delete",
 				Aliases: []string{"d"},
-				Usage:   "start all torrents",
+				Usage:   "delete show",
 				Action:  res.del,
+			},
+			{
+				Name:    "remove",
+				Aliases: []string{"r"},
+				Usage:   "delete show",
+				Action:  res.remove,
+			},
+			{
+				Name:    "list",
+				Aliases: []string{"l"},
+				Usage:   "list torrents",
+				Action:  res.list,
 			},
 		},
 	}
@@ -88,4 +101,17 @@ func (x *App) del(*cli.Context) error {
 	}
 
 	return x.conf.DeleteShow(i, j)
+}
+
+func (x *App) remove(*cli.Context) error {
+	return adapter.Flush()
+}
+
+func (x *App) list(*cli.Context) error {
+	// err := termbox.Init()
+	// if err != nil {
+	// 	return err
+	// }
+	// termbox.
+	return nil
 }
