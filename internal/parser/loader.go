@@ -7,11 +7,16 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+const (
+	nyaaRootUrl = "https://nyaa.si"
+	lookupUrl   = nyaaRootUrl + "/user/%s?f=0&c=0_0&q=%s+%d&p=%d"
+)
+
 func getPage(user, title string, resoluiton int, p int) ([]byte, error) {
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 	url := fmt.Sprintf(
-		"https://nyaa.si/user/%s?f=0&c=0_0&q=%s+%d&p=%d",
+		lookupUrl,
 		user,
 		strings.ReplaceAll(title, " ", "+"),
 		resoluiton,

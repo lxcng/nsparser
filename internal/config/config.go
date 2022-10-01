@@ -3,10 +3,11 @@ package config
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"nsparser/adapter"
-	"nsparser/parser"
+
+	"nsparser/internal/adapter"
+	"nsparser/internal/parser"
+	"os"
 	"sync"
 )
 
@@ -15,32 +16,33 @@ type config struct {
 	adapter.ClientOpts
 
 	Translators []*translator `json:","`
+	path        string
+}
 
-	mx   sync.RWMutex
-	path string
-
-	parser *parser.Parser
+func NewConfig(path string) *Config {
+	c := &config{path: path}
+	c.load()
+	c.compile(nil)
+	// todo: check??
+	_ = c.parse(nil)
+	return &Config{c: c}
 }
 
 func (c *config) load() {
-	bt, err := ioutil.ReadFile(c.path)
+	bt, err := os.ReadFile(c.path)
 	if err != nil {
 		log.Println("can't load config file", err)
 		return
 	}
-	c.mx.Lock()
-	defer c.mx.Unlock()
 	err = json.Unmarshal(bt, c)
 	if err != nil {
 		log.Println("can't unmarshal config", err)
 		return
 	}
-	log.Println("config loaded")
+	// fmt.Println("config loaded")
 }
 
-func (c *config) save() {
-	c.mx.RLock()
-	defer c.mx.RUnlock()
+func (c *config) Save() {
 	buff := bytes.NewBuffer(nil)
 	enc := json.NewEncoder(buff)
 	enc.SetIndent("", "\t")
@@ -48,11 +50,11 @@ func (c *config) save() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = ioutil.WriteFile(c.path, buff.Bytes(), 0777)
+	err = os.WriteFile(c.path, buff.Bytes(), 0777)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("config saved")
+	// log.Println("config saved")
 }
 
 // int funcs
@@ -77,45 +79,29 @@ func (c *config) getClientOpts() *adapter.ClientOpts {
 	return &c.ClientOpts
 }
 
-func (c *config) start(id string) (bool, error) {
-	c.mx.RLock()
-	defer c.mx.RUnlock()
+func (c *config) start() error {
 	for _, e := range c.getChilds() {
-		ok, err := e.start(id)
-		if ok {
-			return ok, err
+		err := e.start()
+		if err != nil {
+			return err
 		}
 	}
-	return false, nil
+	return nil
 }
 
-func (c *config) compile(Entry, func()) {
-	c.mx.Lock()
-	defer c.mx.Unlock()
+func (c *config) compile(Entry) {
 	for _, e := range c.getChilds() {
-		e.compile(c, c.save)
+		e.compile(c)
 	}
 }
 
 func (c *config) parse(wg *sync.WaitGroup) error {
-	c.mx.Lock()
-	defer c.mx.Unlock()
 	nwg := sync.WaitGroup{}
 	for _, e := range c.getChilds() {
 		nwg.Add(1)
 		go e.parse(&nwg)
 	}
 	nwg.Wait()
-	log.Println("parsed")
+	// log.Println("parsed")
 	return nil
-}
-
-func (c *config) getViews() []*View {
-	c.mx.RLock()
-	defer c.mx.RUnlock()
-	res := []*View{}
-	for _, e := range c.getChilds() {
-		res = append(res, e.getViews()...)
-	}
-	return res
 }

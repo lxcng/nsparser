@@ -10,49 +10,45 @@ import (
 )
 
 type Parser struct {
-	resolution          int
-	episodeNumberRegexp string
-	EpisodeNumberRule   *regexp.Regexp
-	magnetRegexp        string
-	MagnetRule          *regexp.Regexp
+	resolution        int
+	translator        string
+	EpisodeNumberRule *regexp.Regexp
+	TorrentRule       *regexp.Regexp
 }
 
 func NewParser(po ParserOpts) *Parser {
 	res := &Parser{
-		resolution:          *po.Resolution,
-		episodeNumberRegexp: *po.EpisodeNumberRegex,
-		magnetRegexp:        *po.MagnetRegex,
+		resolution: *po.Resolution,
+		translator: *po.Translator,
 	}
 	var err error
-	res.EpisodeNumberRule, err = regexp.Compile(res.episodeNumberRegexp)
+	res.EpisodeNumberRule, err = regexp.Compile(*po.EpisodeNumberRegex)
 	if err != nil {
 		log.Fatal(err)
 	}
-	res.MagnetRule, err = regexp.Compile(res.magnetRegexp)
+	res.TorrentRule, err = regexp.Compile(*po.TorrentRegex)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return res
 }
 
-func (p *Parser) ParsePage(user, title string) map[int]string {
-	// start := time.Now()
+func (p *Parser) ParsePage(title string) map[int]string {
 	res := map[int]string{}
 	for i := 1; i < 100; i++ {
-		eps := p.parsePage(user, title, i)
-		if eps == nil || len(eps) == 0 {
+		eps := p.parsePage(title, i)
+		if len(eps) == 0 {
 			break
 		}
 		for n, m := range eps {
 			res[n] = m
 		}
 	}
-	// log.Printf("parsed %d episodes of \"%s\" by %s in %v\n", len(res), title, user, time.Now().Sub(start).String())
 	return res
 }
 
-func (p *Parser) parsePage(user, title string, page int) map[int]string {
-	bt, err := getPage(user, title, p.resolution, page)
+func (p *Parser) parsePage(title string, page int) map[int]string {
+	bt, err := getPage(p.translator, title, p.resolution, page)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,7 +179,7 @@ func (p *Parser) lookupMagnet(n *html.Node) (int, string, bool) {
 					if iat.Key == "class" {
 						if iat.Val == "text-center" {
 							if i.FirstChild != nil {
-								magTmp, ok := p.lookupMagnetUrl(i)
+								magTmp, ok := p.lookupTorrentUrl(i)
 								if ok {
 									mag = magTmp
 								}
@@ -218,14 +214,14 @@ func (p *Parser) lookupEpisodeNumber(n *html.Node) (int, bool) {
 	return 0, true
 }
 
-func (p *Parser) lookupMagnetUrl(n *html.Node) (string, bool) {
+func (p *Parser) lookupTorrentUrl(n *html.Node) (string, bool) {
 	for i := n.FirstChild; i != nil; i = i.NextSibling {
 		if i.Data == "a" {
 			if i.Attr != nil {
 				for _, iat := range i.Attr {
 					if iat.Key == "href" {
-						if p.MagnetRule.MatchString(iat.Val) {
-							return iat.Val, true
+						if p.TorrentRule.MatchString(iat.Val) {
+							return nyaaRootUrl + iat.Val, true
 						}
 					}
 				}

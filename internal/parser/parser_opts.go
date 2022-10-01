@@ -4,6 +4,7 @@ type ParserOpts struct {
 	Resolution         *int    `json:",omitempty"`
 	EpisodeNumberRegex *string `json:",omitempty"`
 	MagnetRegex        *string `json:",omitempty"`
+	TorrentRegex       *string `json:",omitempty"`
 	Translator         *string `json:",omitempty"`
 }
 
@@ -23,11 +24,6 @@ func (po *ParserOpts) complete() bool {
 	return true
 }
 
-func (po *ParserOpts) compile() interface{} {
-
-	return nil
-}
-
 func (po *ParserOpts) Merge(other *ParserOpts) ParserOpts {
 	if po.complete() {
 		return *po
@@ -40,6 +36,9 @@ func (po *ParserOpts) Merge(other *ParserOpts) ParserOpts {
 	}
 	if po.MagnetRegex == nil && other.MagnetRegex != nil {
 		po.MagnetRegex = other.MagnetRegex
+	}
+	if po.TorrentRegex == nil && other.TorrentRegex != nil {
+		po.TorrentRegex = other.TorrentRegex
 	}
 	if po.Translator == nil && other.Translator != nil {
 		po.Translator = other.Translator

@@ -1,8 +1,8 @@
 package config
 
 import (
-	"nsparser/adapter"
-	"nsparser/parser"
+	"nsparser/internal/adapter"
+	"nsparser/internal/parser"
 	"sync"
 )
 
@@ -12,9 +12,13 @@ type Entry interface {
 	getClientOpts() *adapter.ClientOpts
 	getParserOpts() *parser.ParserOpts
 
-	compile(Entry, func())
-	start(string) (bool, error)
+	compile(Entry)
+	start() error
 	parse(*sync.WaitGroup) error
+}
 
-	getViews() []*View
+func wg() *sync.WaitGroup {
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	return &wg
 }

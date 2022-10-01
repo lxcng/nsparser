@@ -1,2 +1,3 @@
 config.json
 nsparser
+*_test.go

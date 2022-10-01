@@ -1,12 +1,11 @@
 package adapter
 
 import (
-	"nsparser/adapter/macos"
-	"nsparser/adapter/ubuntu"
+	"nsparser/internal/adapter/ubuntu"
 )
 
 type Adapter interface {
-	AddMagnet(magnet, dir string) error
+	AddTorrent(url, dir string) error
 }
 
 var (
@@ -15,8 +14,8 @@ var (
 
 func NewScanner(co ClientOpts) Adapter {
 	switch *co.Os {
-	case "macos":
-		return macos.NewMacosTransmissionAdapter()
+	// case "macos":
+	// return macos.NewMacosTransmissionAdapter()
 	case "ubuntu":
 		return ubuntu.NewUbuntuTransmissionAdapter()
 	default:
