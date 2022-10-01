@@ -48,7 +48,6 @@ func Flush() error {
 		ids = append(ids, id)
 	}
 	//
-	fmt.Println(ids)
 	cmd = exec.Command(
 		"/bin/sh", "-c",
 		removeTorrents(ids),

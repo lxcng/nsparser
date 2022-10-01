@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	path, ok := os.LookupEnv("NS_DL_CONF_PATH_")
+	path, ok := os.LookupEnv("NS_DL_CONF_PATH")
 	if !ok {
 		path = "config.json"
 	}
