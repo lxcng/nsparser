@@ -48,11 +48,27 @@ func Init(conf *config.Config) *App {
 				Usage:   "delete show",
 				Action:  res.remove,
 			},
+			// {
+			// 	Name:    "list",
+			// 	Aliases: []string{"l"},
+			// 	Usage:   "list torrents",
+			// 	Action:  res.list,
+			// },
 			{
-				Name:    "list",
-				Aliases: []string{"l"},
-				Usage:   "list torrents",
-				Action:  res.list,
+				Name:    "on",
+				Aliases: []string{"on"},
+				Usage:   "start transmission",
+				Action: func(ctx *cli.Context) error {
+					return adapter.Start()
+				},
+			},
+			{
+				Name:    "off",
+				Aliases: []string{"off"},
+				Usage:   "stop transmission",
+				Action: func(ctx *cli.Context) error {
+					return adapter.Stop()
+				},
 			},
 		},
 	}
@@ -108,10 +124,6 @@ func (x *App) remove(*cli.Context) error {
 }
 
 func (x *App) list(*cli.Context) error {
-	// err := termbox.Init()
-	// if err != nil {
-	// 	return err
-	// }
-	// termbox.
+	// TODO list
 	return nil
 }

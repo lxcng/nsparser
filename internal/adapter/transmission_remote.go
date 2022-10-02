@@ -95,3 +95,27 @@ func trim(url string) string {
 	s := strings.Split(url, "/")
 	return s[len(s)-1]
 }
+
+func Start() error {
+	cmd := exec.Command(
+		"service", "transmission-daemon", "start",
+	)
+	bt, err := cmd.Output()
+	if err != nil {
+		log.Println(err.Error(), string(bt))
+		return err
+	}
+	return nil
+}
+
+func Stop() error {
+	cmd := exec.Command(
+		"service", "transmission-daemon", "stop",
+	)
+	bt, err := cmd.Output()
+	if err != nil {
+		log.Println(err.Error(), string(bt))
+		return err
+	}
+	return nil
+}
