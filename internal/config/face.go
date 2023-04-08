@@ -36,3 +36,7 @@ func (x *Config) StartAll() error {
 func (x *Config) findTranslator(i int) *translator {
 	return x.c.Translators[i]
 }
+
+func (c *Config) Parse() error {
+	return c.c.parse(nil)
+}

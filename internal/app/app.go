@@ -33,6 +33,9 @@ func Init(conf *config.Config) *App {
 				Aliases: []string{"s"},
 				Usage:   "start all torrents",
 				Action: func(*cli.Context) error {
+					if err := conf.Parse(); err != nil {
+						return err
+					}
 					return conf.StartAll()
 				},
 			},

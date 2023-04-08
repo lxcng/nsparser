@@ -21,8 +21,6 @@ func NewConfig(path string) *Config {
 	c := &config{path: path}
 	c.load()
 	c.compile(nil)
-	// todo: check??
-	_ = c.parse(nil)
 	return &Config{c: c}
 }
 
