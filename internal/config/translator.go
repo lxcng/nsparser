@@ -2,7 +2,6 @@ package config
 
 import (
 	"nsparser/internal/parser"
-	"sync"
 )
 
 type translator struct {
@@ -46,14 +45,10 @@ func (t *translator) compile(e Entry) {
 	}
 }
 
-func (t *translator) parse(wg *sync.WaitGroup) error {
-	nwg := sync.WaitGroup{}
+func (t *translator) parse() error {
 	for _, e := range t.getChilds() {
-		nwg.Add(1)
-		go e.parse(&nwg)
+		e.parse()
 	}
-	nwg.Wait()
-	wg.Done()
 	return nil
 }
 
@@ -69,7 +64,7 @@ func (x *translator) add(title, present string) error {
 	for _, s := range x.Shows {
 		if s.Title == title {
 			s.AppendPresent(present)
-			return s.parse(wg())
+			return s.parse()
 		}
 	}
 	s := &show{
@@ -77,7 +72,7 @@ func (x *translator) add(title, present string) error {
 		Present: present,
 	}
 	s.compile(x)
-	err := s.parse(wg())
+	err := s.parse()
 	if err != nil {
 		return err
 	}

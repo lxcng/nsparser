@@ -38,5 +38,5 @@ func (x *Config) findTranslator(i int) *translator {
 }
 
 func (c *Config) Parse() error {
-	return c.c.parse(nil)
+	return c.c.parse()
 }

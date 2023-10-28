@@ -7,7 +7,6 @@ import (
 
 	"nsparser/internal/parser"
 	"os"
-	"sync"
 )
 
 type config struct {
@@ -87,13 +86,9 @@ func (c *config) compile(Entry) {
 	}
 }
 
-func (c *config) parse(wg *sync.WaitGroup) error {
-	nwg := sync.WaitGroup{}
+func (c *config) parse() error {
 	for _, e := range c.getChilds() {
-		nwg.Add(1)
-		go e.parse(&nwg)
+		e.parse()
 	}
-	nwg.Wait()
-	// log.Println("parsed")
 	return nil
 }

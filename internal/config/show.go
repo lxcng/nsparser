@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 type show struct {
@@ -74,7 +73,7 @@ func (s *show) compile(e Entry) {
 	s.parser = parser.NewParser(s.pOpts)
 }
 
-func (s *show) parse(wg *sync.WaitGroup) error {
+func (s *show) parse() error {
 	epsTmp := s.parser.ParsePage(s.Title)
 	if epsTmp == nil {
 		return fmt.Errorf("can't load episodes of \"%s\"", s.Title)
@@ -97,7 +96,6 @@ func (s *show) parse(wg *sync.WaitGroup) error {
 		eps[k] = struct{}{}
 	}
 	s.eps = s.compileEps(eps)
-	wg.Done()
 	log.Printf("%s: present: %s, ready: %s\n", s.Title, s.Present, func(s string) string {
 		if s == "" {
 			return "0"
